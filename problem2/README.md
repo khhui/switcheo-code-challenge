@@ -1,4 +1,4 @@
-# Next.js & NextUI Template
+# Problem 2: Fancy Form
 
 This is a template for creating applications using Next.js 14 (app directory) and NextUI (v2).
 
