@@ -13,8 +13,7 @@ import {
 } from "@nextui-org/react";
 
 import Table1 from "../components/table1";
-import { tokens } from "../public/data"; // Assumed data is imported
-
+import { tokens } from "./data/data";
 export default function Home() {
   const [currencies, setCurrencies] = useState<string[]>([]);
   const [sendCurrency, setSendCurrency] = useState<string>("");
@@ -25,30 +24,34 @@ export default function Home() {
   const [isSwapping, setIsSwapping] = useState(false);
 
   useEffect(() => {
-    let currencyCodes: string[] = [];
-    if (tokens.length > 0) {
-      currencyCodes = [...new Set(tokens.map((token) => token.currency))];
-      setCurrencies(currencyCodes);
-
-      setSendCurrency(currencyCodes[0] || "");
-      setReceiveCurrency(currencyCodes[1] || "");
+    if (!tokens || tokens.length === 0) {
+      console.warn("Tokens array is empty or undefined");
+      return;
     }
+
+    let currencyCodes = [...new Set(tokens.map((token) => token.currency))];
+    setCurrencies(currencyCodes);
+
+    setSendCurrency(currencyCodes[0] || "");
+    setReceiveCurrency(currencyCodes[1] || "");
   }, [tokens]);
 
+  const getPrice = (currency: string) => {
+    if (!tokens || tokens.length === 0) return 0;
+
+    const currencyData = tokens
+      .filter((token) => token.currency === currency && token.date)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return currencyData.length > 0 && currencyData[0].price
+      ? currencyData[0].price
+      : 0;
+  };
+
+  const sendPrice = getPrice(sendCurrency);
+  const receivePrice = getPrice(receiveCurrency);
+
   useEffect(() => {
-    const getPrice = (currency: string) => {
-      const currencyData = tokens
-        .filter((token) => token.currency === currency)
-        .sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-
-      return currencyData.length > 0 ? currencyData[0].price : 0;
-    };
-
-    const sendPrice = getPrice(sendCurrency);
-    const receivePrice = getPrice(receiveCurrency);
-
     if (sendPrice && receivePrice) {
       setExchangeRate(sendPrice / receivePrice);
     }
@@ -69,7 +72,6 @@ export default function Home() {
 
   return (
     <section className="flex flex-col md:flex-row items-start gap-8 py-8 md:py-10">
-      {/* Card Section */}
       <section className="flex-1 min-w-[52%]">
         <h1 className="tracking-tight inline font-semibold from-[#FF1CF7] to-[#b249f8] text-[5rem] lg:text-5xl bg-clip-text text-transparent bg-gradient-to-b">
           SWAP

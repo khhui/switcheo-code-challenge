@@ -14,8 +14,8 @@ import {
   SortDescriptor,
 } from "@nextui-org/react";
 
-import { tokens } from "../public/data";
-console.log(tokens);
+import { tokens } from "../app/data/data";
+// console.log(tokens);
 
 const columns = [
   { name: "CURRENCY", uid: "currency", sortable: true },
@@ -50,8 +50,8 @@ export default function Table1() {
 
   const sortedItems = React.useMemo(() => {
     return [...filteredItems].sort((a: Token, b: Token) => {
-      const first = a[sortDescriptor.column as keyof Token] as number;
-      const second = b[sortDescriptor.column as keyof Token] as number;
+      const first = a[sortDescriptor.column as keyof Token] || 0;
+      const second = b[sortDescriptor.column as keyof Token] || 0;
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
@@ -126,7 +126,7 @@ export default function Table1() {
         <div className="flex justify-between gap-3 items-end">
           <Input
             isClearable
-            className="w-full sm:max-w-[44%]"
+            className="w-full sm:max-w-[60%]"
             placeholder="Search by name..."
             value={filterValue}
             onClear={() => onClear()}
@@ -154,10 +154,14 @@ export default function Table1() {
   }, [filterValue, onSearchChange, onRowsPerPageChange, sortedItems.length]);
 
   const bottomContent = React.useMemo(() => {
+    const displayDate = tokens[0]?.date
+      ? new Date(tokens[0].date).toLocaleString("en-US")
+      : "Date not available";
+
     return (
       <div>
         <span className="flex text-default-400 text-small justify-end">
-          As of {tokens[0].date.toLocaleString("en-US")}
+          As of {displayDate}
         </span>
         <div className="py-2 flex justify-center">
           <Pagination
@@ -172,7 +176,7 @@ export default function Table1() {
         </div>
       </div>
     );
-  }, [page, pages]);
+  }, [page, pages, tokens]);
 
   return (
     <Table
